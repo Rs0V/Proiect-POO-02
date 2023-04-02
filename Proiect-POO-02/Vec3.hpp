@@ -15,11 +15,11 @@ public:
 	Vec3(const double _x = 0.0, const double _y = 0.0, const double _z = 0.0);
 	Vec3(const Vec2& other, const double _z = 0.0);
 	Vec3(const Vec3& other);
-	Vec3(const Vec3&& other) noexcept;
+	Vec3(Vec3&& other) noexcept;
 	~Vec3() override;
 
 	Vec3& operator=(const Vec3& other);
-	Vec3& operator=(const Vec3&& other) noexcept;
+	Vec3& operator=(Vec3&& other) noexcept;
 
 	friend std::istream& operator>>(std::istream& is, Vec3& me);
 	friend std::ostream& operator<<(std::ostream& os, const Vec3& me);

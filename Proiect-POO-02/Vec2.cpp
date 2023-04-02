@@ -15,11 +15,16 @@ Vec2::Vec2(const Vec2& other)
 {
 }
 
-Vec2::Vec2(const Vec2&& other) noexcept
+Vec2::Vec2(Vec2&& other) noexcept
 	:
-	x(other.x),
-	y(other.y)
+	x(0),
+	y(0)
 {
+	x = other.x;
+	y = other.y;
+
+	other.x = 0;
+	other.y = 0;
 }
 
 Vec2::~Vec2()
@@ -33,10 +38,13 @@ Vec2& Vec2::operator=(const Vec2& other)
 	return *this;
 }
 
-Vec2& Vec2::operator=(const Vec2&& other) noexcept
+Vec2& Vec2::operator=(Vec2&& other) noexcept
 {
 	x = other.x;
 	y = other.y;
+
+	other.x = 0;
+	other.y = 0;
 	return *this;
 }
 

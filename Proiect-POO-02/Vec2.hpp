@@ -16,11 +16,11 @@ public:
 
 	Vec2(const double _x = 0.0, const double _y = 0.0);
 	Vec2(const Vec2& other);
-	Vec2(const Vec2&& other) noexcept;
+	Vec2(Vec2&& other) noexcept;
 	virtual ~Vec2();
 
 	Vec2& operator=(const Vec2& other);
-	Vec2& operator=(const Vec2&& other) noexcept;
+	Vec2& operator=(Vec2&& other) noexcept;
 
 	friend std::istream& operator>>(std::istream& is, Vec2& me);
 	friend std::ostream& operator<<(std::ostream& os, const Vec2& me);

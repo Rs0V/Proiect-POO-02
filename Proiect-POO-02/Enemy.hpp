@@ -7,13 +7,18 @@
 class Enemy : public Entity
 {
 public:
-	Enemy(int64_t _id, std::string _name = "Enemy", Vec3 _pos = Vec3(), double _speed = 1, int _hp = 100, int _dmg = 1);
+	Enemy(const int64_t _id,
+		const std::string _name = "Enemy",
+		const Vec3 _pos = Vec3(),
+		const int _speed = 1,
+		const int _hp = 100,
+		const int _dmg = 1);
 	Enemy(const Enemy& other);
-	Enemy(const Enemy&& other) noexcept;
+	Enemy(Enemy&& other) noexcept;
 	~Enemy() override;
 
 	Enemy& operator=(const Enemy& other);
-	Enemy& operator=(const Enemy&& other) noexcept;
+	Enemy& operator=(Enemy&& other) noexcept;
 
 	friend std::istream& operator>>(std::istream& is, Enemy& me);
 	friend std::ostream& operator<<(std::ostream& os, const Enemy& me);
@@ -23,7 +28,9 @@ public:
 	bool operator!() const;
 
 	void Move() override;
-	void Attack() override;
+	void Attack(Entity& other) const override;
+	void TakeDamage(const int _dmg) override;
+	bool Alive() const override;
 };
 
 #endif // !ENEMY

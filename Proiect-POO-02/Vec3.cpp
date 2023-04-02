@@ -21,11 +21,18 @@ Vec3::Vec3(const Vec3& other)
 {
 }
 
-Vec3::Vec3(const Vec3&& other) noexcept
+Vec3::Vec3(Vec3&& other) noexcept
 	:
-	Vec2::Vec2(other.x, other.y),
-	z(other.z)
+	Vec2::Vec2(0, 0),
+	z(0)
 {
+	x = other.x;
+	y = other.y;
+	z = other.z;
+
+	other.x = 0;
+	other.y = 0;
+	other.z = 0;
 }
 
 Vec3::~Vec3()
@@ -40,11 +47,15 @@ Vec3& Vec3::operator=(const Vec3& other)
 	return *this;
 }
 
-Vec3& Vec3::operator=(const Vec3&& other) noexcept
+Vec3& Vec3::operator=(Vec3&& other) noexcept
 {
 	x = other.x;
 	y = other.y;
 	z = other.z;
+
+	other.x = 0;
+	other.y = 0;
+	other.z = 0;
 	return *this;
 }
 
