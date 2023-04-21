@@ -1,13 +1,19 @@
-#include "Player.hpp"
+
 #include <conio.h>
 
-Player::Player(const int64_t _id, const std::string _name, const Vec3 _pos, const Stats stats)
+#include "Player.hpp"
+#include "Id_Manager.hpp"
+#include <sstream>
+
+Player::Player(const int64_t _id, const s_ptr(World) _world, const std::string _name, const Vec3 _pos, const Stats stats)
 	:
 	luck(stats.luck),
 	inventory_size(stats.inv_size),
 	inventory(new std::string[stats.inv_size])
 {
+	Id_Manager::Mark_Id(_id);
 	id = _id;
+	world = _world;
 	name = _name;
 	position = _pos;
 	speed = stats.speed;
@@ -21,7 +27,9 @@ Player::Player(const Player& other)
 	inventory_size(other.inventory_size),
 	inventory(new std::string[other.inventory_size])
 {
+	Id_Manager::Mark_Id(other.id);
 	id = other.id;
+	world = other.world;
 	name = other.name;
 	position = other.position;
 	speed = other.speed;
@@ -38,9 +46,11 @@ Player::Player(Player&& other) noexcept
 	inventory_size(0),
 	inventory(nullptr)
 {
+	Id_Manager::Mark_Id(other.id);
 	id = other.id;
+	world = other.world;
 	name = std::move(other.name);
-	position = other.position;
+	position = std::move(other.position);
 	speed = other.speed;
 	hp = other.hp;
 	damage = other.damage;
@@ -49,6 +59,7 @@ Player::Player(Player&& other) noexcept
 	inventory = std::move(other.inventory);
 
 	other.id = 0;
+	other.world.reset();
 	other.name = "";
 	other.position = 0;
 	other.speed = 0;
@@ -66,20 +77,29 @@ Player::~Player()
 
 Player& Player::operator=(const Player& other)
 {
-	id = other.id;
-	name = other.name;
 	position = other.position;
 	speed = other.speed;
 	hp = other.hp;
 	damage = other.damage;
+	luck = other.luck;
+
+	inventory_size = other.inventory_size;
+	inventory.reset();
+	inventory = std::move(u_ptr(std::string[])(new std::string[other.inventory_size]));
+
+	for (int i = 0; i < inventory_size; ++i)
+		inventory[i] = other.inventory[i];
+
 	return *this;
 }
 
 Player& Player::operator=(Player&& other) noexcept
 {
+	Id_Manager::Mark_Id(other.id);
 	id = other.id;
+	world = other.world;
 	name = std::move(other.name);
-	position = other.position;
+	position = std::move(other.position);
 	speed = other.speed;
 	hp = other.hp;
 	damage = other.damage;
@@ -88,6 +108,7 @@ Player& Player::operator=(Player&& other) noexcept
 	inventory = std::move(other.inventory);
 
 	other.id = 0;
+	other.world.reset();
 	other.name = "";
 	other.position = 0;
 	other.speed = 0;
@@ -115,6 +136,11 @@ bool Player::operator!() const
 	return (hp <= 0);
 }
 
+Player::operator bool() const
+{
+	return (name != "");
+}
+
 std::istream& operator>>(std::istream& is, Player& me)
 {
 	is >> me.name >> me.position >> me.speed >> me.hp >> me.damage;
@@ -131,27 +157,44 @@ std::ostream& operator<<(std::ostream& os, const Player& me)
 	return os;
 }
 
-void Player::Move()
+void Player::Move(const double delta_time)
 {
+	Vec3 move;
+	std::ostringstream oss;
 	switch (input)
 	{
 	case 'w':
-		position += Vec3(0, 1, 0);
-		std::cout << name << "(#" << id << ") moving forward...\n\n";
+		move = Vec3(0, -1, 0);
+		oss << name << "(#" << id << ") moving forward...\n\n";
 		break;
 	case 's':
-		position += Vec3(0, -1, 0);
-		std::cout << name << "(#" << id << ") moving backward...\n\n";
+		move = Vec3(0, 1, 0);
+		oss << name << "(#" << id << ") moving backward...\n\n";
 		break;
 	case 'a':
-		position += Vec3(-1, 0, 0);
-		std::cout << name << "(#" << id << ") moving left...\n\n";
+		move = Vec3(-1, 0, 0);
+		oss << name << "(#" << id << ") moving left...\n\n";
 		break;
 	case 'd':
-		position += Vec3(1, 0, 0);
-		std::cout << name << "(#" << id << ") moving right...\n\n";
+		move = Vec3(1, 0, 0);
+		oss << name << "(#" << id << ") moving right...\n\n";
 		break;
 	}
+	move *= delta_time * speed;
+	if ((position + move).x_ < 0 or (position + move).y_ < 0
+		or (position + move).x_ > world->GetDim().x_ - 1
+		or (position + move).y_ > world->GetDim().y_ - 1) {
+		std::ostringstream oss1;
+		oss1 << "future_pos(x: " << (position + move).x_ << ", y: " << (position + move).y_ << ")";
+		throw out_of_bounds(oss1.str());
+	}
+	position += move;
+	std::cout << oss.str(); //<< " position: " << Vec2(position);
+}
+
+Vec3 Player::GetPos()
+{
+	return position;
 }
 
 void Player::Attack(Entity& other) const
@@ -212,7 +255,7 @@ void Player::IncreaseStat(const std::string stat_name, const int incr)
 	}}
 }
 
-void Player::Input(const std::vector<s_ptr(Entity)>& others)
+void Player::Input(const double delta_time, const std::vector<s_ptr(Entity)>& entities)
 {
 	input = _getch();
 	switch (input)
@@ -221,11 +264,11 @@ void Player::Input(const std::vector<s_ptr(Entity)>& others)
 	case 's':
 	case 'a':
 	case 'd':
-		Move();
+		Move(delta_time);
 		break;
 	case ' ':
-		for(int i = 0; i < others.size(); ++i)
-			Attack(*others[i]);
+		for(int i = 0; i < entities.size(); ++i)
+			Attack(*entities[i]);
 		break;
 	}
 }

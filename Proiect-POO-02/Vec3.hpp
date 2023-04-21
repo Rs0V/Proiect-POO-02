@@ -12,7 +12,8 @@ protected:
 public:
 	double readonly z_ = z;
 
-	Vec3(const double _x = 0.0, const double _y = 0.0, const double _z = 0.0);
+	Vec3(const double nr = 0.0);
+	Vec3(const double _x, const double _y, const double _z);
 	Vec3(const Vec2& other, const double _z = 0.0);
 	Vec3(const Vec3& other);
 	Vec3(Vec3&& other) noexcept;
@@ -40,6 +41,8 @@ public:
 	bool operator<(const Vec3& other) const;
 	bool operator<=(const Vec3& other) const;
 	bool operator>=(const Vec3& other) const;
+
+	operator bool() const;
 
 	void set_x(const double _x);
 	void set_y(const double _y);

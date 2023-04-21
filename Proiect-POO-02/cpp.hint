@@ -4,3 +4,4 @@
 #define u_ptr(type)
 #define elif
 #define s_ptr(type)
+#define _system

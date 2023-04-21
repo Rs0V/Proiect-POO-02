@@ -8,6 +8,7 @@ class Enemy : public Entity
 {
 public:
 	Enemy(const int64_t _id,
+		const s_ptr(World) _world,
 		const std::string _name = "Enemy",
 		const Vec3 _pos = Vec3(),
 		const int _speed = 1,
@@ -27,7 +28,10 @@ public:
 	bool operator!=(const Enemy& other) const;
 	bool operator!() const;
 
-	void Move() override;
+	operator bool() const;
+
+	Vec3 GetPos() override;
+	void Move(const double delta_time) override;
 	void Attack(Entity& other) const override;
 	void TakeDamage(const int _dmg) override;
 	bool Alive() const override;

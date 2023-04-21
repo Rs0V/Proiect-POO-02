@@ -1,6 +1,7 @@
 #include "Enemy.hpp"
 
 Enemy::Enemy(const int64_t _id,
+	const s_ptr(World) _world,
 	const std::string _name,
 	const Vec3 _pos,
 	const int _speed,
@@ -8,6 +9,7 @@ Enemy::Enemy(const int64_t _id,
 	const int _dmg)
 {
 	id = _id;
+	world = _world;
 	name = _name;
 	position = _pos;
 	speed = _speed;
@@ -18,6 +20,7 @@ Enemy::Enemy(const int64_t _id,
 Enemy::Enemy(const Enemy& other)
 {
 	id = other.id;
+	world = other.world;
 	name = other.name;
 	position = other.position;
 	speed = other.speed;
@@ -28,13 +31,15 @@ Enemy::Enemy(const Enemy& other)
 Enemy::Enemy(Enemy&& other) noexcept
 {
 	id = other.id;
+	world = other.world;
 	name = std::move(other.name);
-	position = other.position;
+	position = std::move(other.position);
 	speed = other.speed;
 	hp = other.hp;
 	damage = other.damage;
 
 	other.id = 0;
+	other.world.reset();
 	other.name = "";
 	other.position = 0;
 	other.speed = 0;
@@ -61,13 +66,15 @@ Enemy& Enemy::operator=(const Enemy& other)
 Enemy& Enemy::operator=(Enemy&& other) noexcept
 {
 	id = other.id;
+	world = other.world;
 	name = std::move(other.name);
-	position = other.position;
+	position = std::move(other.position);
 	speed = other.speed;
 	hp = other.hp;
 	damage = other.damage;
 
 	other.id = 0;
+	other.world.reset();
 	other.name = "";
 	other.position = 0;
 	other.speed = 0;
@@ -92,6 +99,11 @@ bool Enemy::operator!() const
 	return (hp <= 0);
 }
 
+Enemy::operator bool() const
+{
+	return (name != "");
+}
+
 std::istream& operator>>(std::istream& is, Enemy& me)
 {
 	is >> me.name >> me.position >> me.speed >> me.hp >> me.damage;
@@ -108,7 +120,12 @@ std::ostream& operator<<(std::ostream& os, const Enemy& me)
 	return os;
 }
 
-void Enemy::Move()
+Vec3 Enemy::GetPos()
+{
+	return position;
+}
+
+void Enemy::Move(const double delta_time)
 {
 	std::cout << name << "(#" << id << ") moving...\n\n";
 }

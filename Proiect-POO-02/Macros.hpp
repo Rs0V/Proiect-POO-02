@@ -8,6 +8,7 @@
 
 #define readonly const&
 #define interface class
+#define _system class
 
 #define u_ptr(type) std::unique_ptr<type>
 #define u_make(type) std::make_unique<type>

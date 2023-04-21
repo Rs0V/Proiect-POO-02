@@ -14,7 +14,8 @@ public:
 	double readonly x_ = x;
 	double readonly y_ = y;
 
-	Vec2(const double _x = 0.0, const double _y = 0.0);
+	Vec2(const double nr = 0.0);
+	Vec2(const double _x, const double _y);
 	Vec2(const Vec2& other);
 	Vec2(Vec2&& other) noexcept;
 	virtual ~Vec2();
@@ -41,6 +42,8 @@ public:
 	bool operator<(const Vec2& other) const;
 	bool operator<=(const Vec2& other) const;
 	bool operator>=(const Vec2& other) const;
+
+	operator bool() const;
 
 	void set_x(const double _x);
 	void set_y(const double _y);

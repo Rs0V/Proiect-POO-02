@@ -1,4 +1,14 @@
+
 #include "Vec3.hpp"
+
+#include "Exception.hpp"
+
+Vec3::Vec3(const double nr)
+	:
+	Vec2::Vec2(nr),
+	z(nr)
+{
+}
 
 Vec3::Vec3(const double _x, const double _y, const double _z)
 	:
@@ -133,6 +143,11 @@ bool Vec3::operator>=(const Vec3& other) const
 	return (length() >= other.length());
 }
 
+Vec3::operator bool() const
+{
+	return (x != 0 and y != 0 and z != 0);
+}
+
 void Vec3::set_x(const double _x)
 {
 	x = _x;
@@ -156,6 +171,8 @@ double Vec3::length() const
 void Vec3::normalize()
 {
 	double len = length();
+	if (len == 0)
+		throw normalize_by_zero();
 	x /= len;
 	y /= len;
 	z /= len;
@@ -164,6 +181,8 @@ void Vec3::normalize()
 Vec3* Vec3::normalized() const
 {
 	double len = length();
+	if (len == 0)
+		throw normalize_by_zero();
 	return new Vec3(x / len, y / len, z / len);
 }
 

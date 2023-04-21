@@ -2,8 +2,9 @@
 #ifndef PLAYER
 #define PLAYER
 
-#include "Entity.hpp"
 #include <vector>
+
+#include "Entity.hpp"
 
 class Player : public Entity
 {
@@ -12,6 +13,7 @@ class Player : public Entity
 	u_ptr(std::string[]) inventory;
 
 	char input;
+
 public:
 	struct Stats
 	{
@@ -36,7 +38,7 @@ public:
 		}
 	};
 
-	Player(const int64_t _id, const std::string _name = "Player", const Vec3 _pos = Vec3(), const Stats stats = Stats());
+	Player(const int64_t _id, const s_ptr(World) _world, const std::string _name = "Player", const Vec3 _pos = Vec3(), const Stats stats = Stats());
 	Player(const Player& other);
 	Player(Player&& other) noexcept;
 	~Player() override;
@@ -44,14 +46,17 @@ public:
 	Player& operator=(const Player& other);
 	Player& operator=(Player&& other) noexcept;
 
-	friend std::istream& operator>>(std::istream& is, Player& me);
-	friend std::ostream& operator<<(std::ostream& os, const Player& me);
-
 	bool operator==(const Player& other) const;
 	bool operator!=(const Player& other) const;
 	bool operator!() const;
 
-	void Move() override;
+	operator bool() const;
+
+	friend std::istream& operator>>(std::istream& is, Player& me);
+	friend std::ostream& operator<<(std::ostream& os, const Player& me);
+
+	Vec3 GetPos() override;
+	void Move(const double delta_time) override;
 	void Attack(Entity& other) const override;
 	void TakeDamage(const int _dmg) override;
 	bool Alive() const override;
@@ -59,7 +64,7 @@ public:
 	bool Dodge() const;
 	void IncreaseStat(const std::string stat_name, const int incr);
 
-	void Input(const std::vector<s_ptr(Entity)>& others);
+	void Input(const double delta_time, const std::vector<s_ptr(Entity)>& others);
 };
 
 #endif // !PLAYER

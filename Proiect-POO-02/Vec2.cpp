@@ -1,5 +1,14 @@
+
 #include "Vec2.hpp"
-#include <math.h>
+
+#include "Exception.hpp"
+
+Vec2::Vec2(const double nr)
+	:
+	x(nr),
+	y(nr)
+{
+}
 
 Vec2::Vec2(const double _x, const double _y)
 	:
@@ -119,6 +128,11 @@ bool Vec2::operator>=(const Vec2& other) const
 	return (length() >= other.length());
 }
 
+Vec2::operator bool() const
+{
+	return (x != 0 and y != 0);
+}
+
 void Vec2::set_x(const double _x)
 {
 	x = _x;
@@ -137,6 +151,8 @@ double Vec2::length() const
 void Vec2::normalize()
 {
 	double len = length();
+	if (len == 0)
+		throw normalize_by_zero();
 	x /= len;
 	y /= len;
 }
@@ -144,6 +160,8 @@ void Vec2::normalize()
 Vec2* Vec2::normalized() const
 {
 	double len = length();
+	if (len == 0)
+		throw normalize_by_zero();
 	return new Vec2(x / len, y / len);
 }
 
